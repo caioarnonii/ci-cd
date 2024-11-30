@@ -126,6 +126,8 @@
 	</dependencies>
 
 	<build>
+		<finalName>backend</finalName>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -141,7 +143,6 @@
 			</plugin>
 		</plugins>
 
-		<finalName>backend</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

@@ -79,6 +79,9 @@ jobs:
       #    - The file is uploaded to the release specified by the `TAG_NAME` environment variable.
       #    - The repository is specified using the `GITHUB_REPOSITORY` environment variable.
       # 3. List all files and directories in the current directory using the `ls -a` command.
+      - name: List directory 2
+        run: ls -a
+
       - name: Create a new release
         run: |
           gh release create "$TAG_NAME" \
@@ -86,7 +89,7 @@ jobs:
             --title="${GITHUB_REPOSITORY#*/} ${TAG_NAME#v}" \
             --generate-notes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           TAG_NAME: ${{ env.TAG_NAME }}
           GITHUB_REPOSITORY: ${{ github.repository }}
   
@@ -95,9 +98,8 @@ jobs:
           gh release upload "$TAG_NAME" ./backend.jar \
             --repo="$GITHUB_REPOSITORY"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           TAG_NAME: ${{ env.TAG_NAME }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: List directory 2
-        run: ls -a
+      
