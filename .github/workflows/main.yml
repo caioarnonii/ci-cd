@@ -83,10 +83,13 @@ jobs:
         run: ls -a
 
 
-      - name: Upload JAR as release asset
-        uses: ncipollo/release-action@v1
-        with:
-           tag: ${{ env.TAG_NAME }}  # Use the same tag for the uploaded asset
-           bodyFile: ./backend.jar
+      - name: Update existing release
+        run: |
+          ASSET_ID=$(curl --silent \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @./backend.jar \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ env.TAG_NAME }}/assets?name=backend.jar" | jq -r '.id')
+          echo "Asset ID: $ASSET_ID"
         env:
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
