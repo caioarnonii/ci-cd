@@ -67,29 +67,37 @@ jobs:
           NEXT_TAG=$((MAX_TAG + 1))
           echo "Next release version: v$NEXT_TAG"
           echo "TAG_NAME=v$NEXT_TAG" >> $GITHUB_ENV  # Save the tag name in the environment variable
+
+          
+      # This GitHub Actions workflow performs the following steps:
+      # 1. Create a new release on GitHub using the `gh release create` command.
+      #    - The release is created with the tag name specified in the `TAG_NAME` environment variable.
+      #    - The repository is specified using the `GITHUB_REPOSITORY` environment variable.
+      #    - The release title is generated using the repository name and the tag name.
+      #    - Release notes are automatically generated.
+      # 2. Upload the `backend.jar` file to the created release using the `gh release upload` command.
+      #    - The file is uploaded to the release specified by the `TAG_NAME` environment variable.
+      #    - The repository is specified using the `GITHUB_REPOSITORY` environment variable.
+      # 3. List all files and directories in the current directory using the `ls -a` command.
       - name: Create a new release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.TAG_NAME }}  # Use the calculated tag name
-          release_name: "Release ${{ env.TAG_NAME }}"
-          body: "Automated release with the latest JAR build."
-          bodyFile: backend.jar
-          draft: false
-          prerelease: false
+        run: |
+          gh release create "$TAG_NAME" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${GITHUB_REPOSITORY#*/} ${TAG_NAME#v}" \
+            --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ env.TAG_NAME }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+  
+      - name: Upload backend.jar
+        run: |
+          gh release upload "$TAG_NAME" ./backend.jar \
+            --repo="$GITHUB_REPOSITORY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ env.TAG_NAME }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: List directory 2
         run: ls -a
-
-
-      - name: Update existing release
-        run: |
-          ASSET_ID=$(curl --silent \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/zip" \
-            --data-binary @./backend.jar \
-            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ env.TAG_NAME }}/assets?name=backend.jar" | jq -r '.id')
-          echo "Asset ID: $ASSET_ID"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
