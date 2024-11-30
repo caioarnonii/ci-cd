@@ -140,9 +140,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
 
-	<build>
 		<finalName>backend</finalName>
 		<resources>
 			<resource>
